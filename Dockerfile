@@ -1,8 +1,13 @@
 FROM python:3
 
-RUN mkdir /downloads \
-        && pip install python-telegram-bot requests
+COPY ./*.py .
+COPY ./requirements.txt .
 
-COPY ./telegram-download-bot.py .
+RUN mkdir /downloads /session \
+        && pip install -r requirements.txt
 
-CMD ["python3", "telegram-download-bot.py"]
+# Set some sane defaults
+ENV TELEGRAM_DAEMON_SESSION_PATH "/session/"
+ENV TELEGRAM_DOWNLOAD_DIR "/downloads/"
+
+CMD ["python3", "telethon-download.py"]
