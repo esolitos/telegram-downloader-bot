@@ -73,13 +73,13 @@ async def main():
         return
 
     # Your API ID and hash
-    api_id = os.getenv("TELEGRAM_APP_ID")
-    api_hash = os.getenv("TELEGRAM_APP_HASH")
+    app_id = os.getenv("TELEGRAM_APP_ID")
+    app_hash = os.getenv("TELEGRAM_APP_HASH")
     invite_link = os.getenv("TELEGRAM_CHANNEL_INVITE_LINK")
     download_dir = os.getenv("TELEGRAM_DOWNLOAD_DIR")
 
     # Creating the client and connecting
-    async with TelegramClient(getSession(), api_id, api_hash) as client:
+    async with TelegramClient(getSession(), api_id=app_id, api_hash=app_hash, receive_updates=False) as client:
         saveSession(client.session)
         await client.start()
 
