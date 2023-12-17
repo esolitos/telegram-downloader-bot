@@ -67,10 +67,11 @@ async def download_media(client, msg: types.Message, directory: str) -> Union[st
 
 
 async def main():
+    global session_path
+
     from dotenv import load_dotenv
     if not load_dotenv():
-        logger.fatal('No .env file found')
-        return
+        logger.info('No .env file found')
 
     # Your API ID and hash
     app_id = os.getenv("TELEGRAM_APP_ID")
@@ -78,9 +79,15 @@ async def main():
     invite_link = os.getenv("TELEGRAM_CHANNEL_INVITE_LINK")
     download_dir = os.getenv("TELEGRAM_DOWNLOAD_DIR")
 
+    session_path = os.getenv("TELEGRAM_DAEMON_SESSION_PATH", "./")
+
+    if not app_id or not app_hash or not invite_link or not download_dir:
+        logger.fatal('Missing environment variables')
+        return
+
     # Creating the client and connecting
-    async with TelegramClient(getSession(), api_id=app_id, api_hash=app_hash, receive_updates=False) as client:
-        saveSession(client.session)
+    async with TelegramClient(getSession(session_path), api_id=app_id, api_hash=app_hash, receive_updates=False) as client:
+        saveSession(client.session, session_path)
         await client.start()
 
         private_info = await client.get_input_entity(invite_link)
@@ -91,7 +98,7 @@ async def main():
 
         try:
             async with client.takeout() as takeout:
-                newer_than_id = int(getProgress() or 0)
+                newer_than_id = int(getProgress(session_path) or 0)
                 async for message in takeout.iter_messages(
                     channel,
                     wait_time=0,
@@ -105,7 +112,7 @@ async def main():
                         await download_media(takeout, message, directory=download_dir)
 
                     # Save the last message id to continue from there if the script is restarted
-                    saveProgress(message.id)
+                    saveProgress(message.id, session_path)
 
         except errors.TakeoutInitDelayError as e:
             print('Must wait', e.seconds, 'before takeout')
