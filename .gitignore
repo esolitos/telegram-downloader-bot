@@ -1,1 +1,13 @@
+# IDEs
 /.idea
+/.vscode
+
+# Python
+__pycache__/
+/.venv/
+/venv/
+
+# App
+/downloads/
+/sessions/
+.env
