@@ -60,6 +60,7 @@ async def download_media(client, msg: types.Message, directory: str) -> Union[st
 
     # downloaded = await fast_download(client, msg, download_folder=dldir)
     downloaded = await msg.download_media(file=dldir, progress_callback=dl_progr)
+    # client.iter_download
 
     logger.info(f'Finished download of "{downloaded}"')
 
@@ -78,6 +79,7 @@ async def main():
     app_hash = os.getenv("TELEGRAM_APP_HASH")
     invite_link = os.getenv("TELEGRAM_CHANNEL_INVITE_LINK")
     download_dir = os.getenv("TELEGRAM_DOWNLOAD_DIR")
+    limit = int(os.getenv("DOWNLOAD_LIMIT", 10))
 
     session_path = os.getenv("TELEGRAM_DAEMON_SESSION_PATH", "./")
 
@@ -102,7 +104,7 @@ async def main():
                 async for message in takeout.iter_messages(
                     channel,
                     wait_time=0,
-                    limit=10,
+                    limit=limit,
                     reverse=True,  # from old to new
                     # filter=types.InputMessagesFilterDocument,
                     offset_id=newer_than_id
